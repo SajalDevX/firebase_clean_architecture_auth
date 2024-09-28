@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'UserEntity.dart';
 
-class FirebaseAuthDataSource {
+class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   final firebase.FirebaseAuth _firebaseAuth;
 
-  FirebaseAuthDataSource(this._firebaseAuth);
+  FirebaseAuthDataSourceImpl(this._firebaseAuth);
 
   Future<User?> signIn(String email, String password) async {
     try {
@@ -29,4 +29,10 @@ class FirebaseAuthDataSource {
     }
     return null;
   }
+
+}
+
+abstract class FirebaseAuthDataSource{
+  Future<User?> signIn(String email, String password);
+  Future<void> signOut();
 }

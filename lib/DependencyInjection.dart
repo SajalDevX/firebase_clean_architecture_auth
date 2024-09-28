@@ -15,7 +15,7 @@ void init() {
   sl.registerLazySingleton(() => FirebaseAuth.instance);
 
   // Data Source
-  sl.registerLazySingleton(() => FirebaseAuthDataSource(sl()));
+  sl.registerLazySingleton<FirebaseAuthDataSourceImpl>(() => FirebaseAuthDataSourceImpl(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));

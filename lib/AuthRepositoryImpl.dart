@@ -3,7 +3,7 @@ import 'AuthRepository.dart';
 import 'UserEntity.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final FirebaseAuthDataSource dataSource;
+  final FirebaseAuthDataSourceImpl dataSource;
 
   AuthRepositoryImpl(this.dataSource);
 
