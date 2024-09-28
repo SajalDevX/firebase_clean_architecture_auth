@@ -1,56 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'AuthBloc.dart';
-import 'AuthEvent.dart';
-import 'AuthState.dart';
-import 'DependencyInjection.dart';
 
 class AuthPage extends StatelessWidget {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<AuthBloc>(),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Authentication')),
-        body: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthInitial) {
-              return SignInForm();
-            } else if (state is AuthLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is AuthAuthenticated) {
-              return Center(child: Text('Welcome ${state.user.email}'));
-            } else if (state is AuthUnauthenticated) {
-              return SignInForm();
-            } else if (state is AuthError) {
-              return Center(child: Text('Error: ${state.message}'));
-            }
-            return Container();
-          },
+    return Scaffold(
+      appBar: AppBar(title: Text('Authentication')),
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is Authenticated) {
+            // Navigate to HomePage if authenticated
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          } else if (state is Unauthenticated) {
+            // Optionally show a message or handle the unauthenticated state
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Authentication failed.')),
+            );
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+              ),
+              TextField(
+                controller: passwordController,
+                decoration: InputDecoration(labelText: 'Password'),
+                obscureText: true,
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  final email = emailController.text;
+                  final password = passwordController.text;
+                  context.read<AuthBloc>().add(SignInRequested(email, password));
+                },
+                child: Text('Sign In'),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class SignInForm extends StatelessWidget {
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-
-    return Column(
-      children: [
-        TextField(controller: emailController, decoration: InputDecoration(labelText: 'Email')),
-        TextField(controller: passwordController, decoration: InputDecoration(labelText: 'Password')),
-        ElevatedButton(
-          onPressed: () {
-            context.read<AuthBloc>().add(SignInRequested(emailController.text, passwordController.text));
-          },
-          child: const Text('Sign In'),
-        ),
-      ],
+    return Scaffold(
+      appBar: AppBar(title: Text('Home Page')),
+      body: Center(
+        child: Text('Welcome! You are authenticated.'),
+      ),
     );
   }
 }

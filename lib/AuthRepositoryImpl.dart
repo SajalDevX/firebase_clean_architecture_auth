@@ -1,36 +1,24 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
+import 'AuthDataSourceImpl.dart';
 import 'AuthRepository.dart';
 import 'UserEntity.dart';
 
-class FirebaseAuthRepositoryImpl implements AuthRepository {
-  final FirebaseAuth firebaseAuth;
+class AuthRepositoryImpl implements AuthRepository {
+  final FirebaseAuthDataSource dataSource;
 
-  FirebaseAuthRepositoryImpl(this.firebaseAuth);
+  AuthRepositoryImpl(this.dataSource);
 
   @override
-  Future<UserEntity> signInWithEmail(String email, String password) async {
-    UserCredential userCredential = await firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-    return UserEntity(id: userCredential.user!.uid, email: userCredential.user!.email!);
+  Future<User?> signIn(String email, String password) {
+    return dataSource.signIn(email, password);
   }
 
   @override
-  Future<UserEntity> signUpWithEmail(String email, String password) async {
-    UserCredential userCredential = await firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
-    return UserEntity(id: userCredential.user!.uid, email: userCredential.user!.email!);
+  Future<void> signOut() {
+    return dataSource.signOut();
   }
 
   @override
-  Future<void> signOut() async {
-    return await firebaseAuth.signOut();
-  }
-
-  @override
-  Future<UserEntity?> getCurrentUser() async {
-    final user = firebaseAuth.currentUser;
-    if (user != null) {
-      return UserEntity(id: user.uid, email: user.email!);
-    }
-    return null;
+  User? getCurrentUser() {
+    return dataSource.getCurrentUser();
   }
 }

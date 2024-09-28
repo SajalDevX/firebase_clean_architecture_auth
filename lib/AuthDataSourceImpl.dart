@@ -1,38 +1,31 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'AuthDataSource.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'UserEntity.dart';
 
-class AuthDataSourceImpl implements AuthDataSource {
-  final FirebaseAuth firebaseAuth;
+class FirebaseAuthDataSource {
+  final firebase.FirebaseAuth _firebaseAuth;
 
-  AuthDataSourceImpl(this.firebaseAuth);
+  FirebaseAuthDataSource(this._firebaseAuth);
 
-  @override
-  Future<UserEntity> signInWithEmail(String email, String password) async {
-    UserCredential userCredential = await firebaseAuth
-        .signInWithEmailAndPassword(email: email, password: password);
-    return UserEntity(
-        id: userCredential.user!.uid, email: userCredential.user!.email!);
+  Future<User?> signIn(String email, String password) async {
+    try {
+      final result = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return User(id: result.user!.uid, email: result.user!.email!);
+    } catch (e) {
+      return null;
+    }
   }
 
-  @override
-  Future<UserEntity> signUpWithEmail(String email, String password) async {
-    UserCredential userCredential = await firebaseAuth
-        .createUserWithEmailAndPassword(email: email, password: password);
-    return UserEntity(
-        id: userCredential.user!.uid, email: userCredential.user!.email!);
-  }
-
-  @override
   Future<void> signOut() async {
-    return await firebaseAuth.signOut();
+    await _firebaseAuth.signOut();
   }
 
-  @override
-  Future<UserEntity?> getCurrentUser() async {
-    final user = firebaseAuth.currentUser;
-    if (user != null) {
-      return UserEntity(id: user.uid, email: user.email!);
+  User? getCurrentUser() {
+    final firebaseUser = _firebaseAuth.currentUser;
+    if (firebaseUser != null) {
+      return User(id: firebaseUser.uid, email: firebaseUser.email!);
     }
     return null;
   }

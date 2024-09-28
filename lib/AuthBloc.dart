@@ -1,46 +1,50 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'AuthEvent.dart';
-import 'AuthState.dart';
 import 'AuthUseCase.dart';
+import 'UserEntity.dart';
+
+abstract class AuthEvent {}
+
+class SignInRequested extends AuthEvent {
+  final String email;
+  final String password;
+
+  SignInRequested(this.email, this.password);
+}
+
+class SignOutRequested extends AuthEvent {}
+
+abstract class AuthState {}
+
+class AuthInitial extends AuthState {}
+
+class AuthLoading extends AuthState {}
+
+class Authenticated extends AuthState {
+  final User user;
+
+  Authenticated(this.user);
+}
+
+class Unauthenticated extends AuthState {}
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthUseCase authUseCase;
+  final SignInUseCase signInUseCase;
+  final SignOutUseCase signOutUseCase;
 
-  AuthBloc(this.authUseCase) : super(AuthInitial()) {
+  AuthBloc(this.signInUseCase, this.signOutUseCase) : super(AuthInitial()) {
     on<SignInRequested>((event, emit) async {
       emit(AuthLoading());
-      try {
-        final user = await authUseCase.signInWithEmail(event.email, event.password);
-        emit(AuthAuthenticated(user));
-      } catch (e) {
-        emit(AuthError(e.toString()));
-      }
-    });
-
-    on<SignUpRequested>((event, emit) async {
-      emit(AuthLoading());
-      try {
-        final user = await authUseCase.signUpWithEmail(event.email, event.password);
-        emit(AuthAuthenticated(user));
-      } catch (e) {
-        emit(AuthError(e.toString()));
+      final user = await signInUseCase.execute(event.email, event.password);
+      if (user != null) {
+        emit(Authenticated(user));
+      } else {
+        emit(Unauthenticated());
       }
     });
 
     on<SignOutRequested>((event, emit) async {
-      emit(AuthLoading());
-      await authUseCase.signOut();
-      emit(AuthUnauthenticated());
-    });
-
-    on<CheckAuthStatus>((event, emit) async {
-      final user = await authUseCase.getCurrentUser();
-      if (user != null) {
-        emit(AuthAuthenticated(user));
-      } else {
-        emit(AuthUnauthenticated());
-      }
+      await signOutUseCase.execute();
+      emit(Unauthenticated());
     });
   }
 }

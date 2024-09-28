@@ -1,24 +1,29 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
+// Import your files
 import 'AuthBloc.dart';
+import 'AuthDataSourceImpl.dart';
 import 'AuthRepository.dart';
 import 'AuthRepositoryImpl.dart';
 import 'AuthUseCase.dart';
-import 'AuthUseCaseImpl.dart';
 
 final sl = GetIt.instance;
 
 void init() {
-  // Firebase
+  // Firebase Auth instance
   sl.registerLazySingleton(() => FirebaseAuth.instance);
 
-  // Repositories
-  sl.registerLazySingleton<AuthRepository>(() => FirebaseAuthRepositoryImpl(sl()));
+  // Data Source
+  sl.registerLazySingleton(() => FirebaseAuthDataSource(sl()));
+
+  // Repository
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
 
   // Use Cases
-  sl.registerLazySingleton<AuthUseCase>(() => AuthUseCaseImpl(sl()));
+  sl.registerLazySingleton(() => SignInUseCase(sl()));
+  sl.registerLazySingleton(() => SignOutUseCase(sl()));
 
-  // Blocs
-  sl.registerFactory(() => AuthBloc(sl()));
+  // Bloc
+  sl.registerFactory(() => AuthBloc(sl(), sl()));
 }

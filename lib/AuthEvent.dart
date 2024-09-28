@@ -1,19 +1,13 @@
+// presentation/bloc/auth_event.dart
 abstract class AuthEvent {}
 
-class SignInRequested extends AuthEvent {
+class SignInEvent extends AuthEvent {
   final String email;
   final String password;
 
-  SignInRequested(this.email, this.password);
+  SignInEvent(this.email, this.password);
 }
 
-class SignUpRequested extends AuthEvent {
-  final String email;
-  final String password;
+class SignOutEvent extends AuthEvent {}
 
-  SignUpRequested(this.email, this.password);
-}
-
-class SignOutRequested extends AuthEvent {}
-
-class CheckAuthStatus extends AuthEvent {}
+class CheckAuthEvent extends AuthEvent {}

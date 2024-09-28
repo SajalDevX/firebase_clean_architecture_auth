@@ -1,8 +1,28 @@
+
+import 'AuthRepository.dart';
 import 'UserEntity.dart';
 
-abstract class AuthUseCase {
-  Future<UserEntity> signInWithEmail(String email, String password);
-  Future<UserEntity> signUpWithEmail(String email, String password);
-  Future<void> signOut();
-  Future<UserEntity?> getCurrentUser();
+class SignInUseCase {
+  final AuthRepository repository;
+
+  SignInUseCase(this.repository);
+
+  Future<User?> execute(String email, String password) {
+    return repository.signIn(email, password);
+  }
 }
+
+
+
+class SignOutUseCase {
+  final AuthRepository repository;
+
+  SignOutUseCase(this.repository);
+
+  Future<void> execute() {
+    return repository.signOut();
+  }
+}
+
+
+
